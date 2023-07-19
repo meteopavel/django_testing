@@ -1,0 +1,35 @@
+<header>
+  <nav class="navbar navbar-light" style="background-color: lightskyblue">
+    <div class="container">
+      <a class="navbar-brand" href="{% url 'notes:home' %}">
+        <span class="text-danger"><b>Ya</b></span>Note
+      </a>
+      {% if user.is_authenticated %}
+          <div class="nav-item align-self-center mt-1">
+            пользователя {{ user.username }}
+          </div>
+        <div class="spacer flex-grow-1"></div>
+      {% endif %}
+      <ul class="nav nav-pills">
+        {% if user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'notes:list' %}">Список заметок</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'notes:add' %}">Новая заметка</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'users:logout' %}">Выйти</a>
+          </li>
+        {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'users:login' %}">Войти</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'users:signup' %}">Регистрация</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </nav>
+</header>

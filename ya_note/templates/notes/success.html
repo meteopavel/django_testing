@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>Успешно</h2>
+  <ul>
+    <li>
+      <a href="{% url 'notes:home' %}">На главную</a>
+    </li>
+    <li>
+      <a href="{% url 'notes:list' %}">К списку заметок</a>
+    </li>
+  </ul>
+{% endblock content %}

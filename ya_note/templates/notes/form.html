@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>
+    {% if request.path == '/add/' %}
+      Добавить
+    {% else %}
+      Редактировать
+    {% endif %}
+    заметку
+  </h2>
+  <form class="form-horizontal" method="post">
+    {% csrf_token %}
+    {% include "includes/errors.html" %}
+    <fieldset>
+      <legend>{{ title }}</legend>
+      {% for field in form %}
+        <div class="control-group">
+          <label class="control-label">{{ field.label }}</label>
+          <div class="controls">
+            {{ field }}
+            {% if field.help_text %}
+              <p class="help-inline"><small>{{ field.help_text }}</small></p>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </fieldset>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" >Сохранить</button>
+    </div>
+  </form>
+{% endblock %}
