@@ -1,13 +1,28 @@
-from django.forms import ModelForm
 from django.core.exceptions import ValidationError
+from django.forms import ModelForm
 
 from .models import Comment
 
-BAD_WORDS = (
-    'редиска',
-    'негодяй',
-    # Дополните список на своё усмотрение.
+"""
+Часа три пытался сделать такую фичу:
+
+response = requests.get(
+    ('https://raw.githubusercontent.com/bars38/'
+     'Russian_ban_words/master/words.txt')
 )
+BAD_WORDS = response.text
+
+Но она ломает
+test_authorized_client_can_create_comment:
+Response code was 200 (expected 302)
+Проблема в response. Причём response.close() не помог.
+Поэтому сделал статичный файл.
+"""
+
+BAD_WORDS = tuple(
+    word.replace('\n', '') for word in open('bad_words.txt').readlines()
+)
+
 WARNING = 'Не ругайтесь!'
 
 
