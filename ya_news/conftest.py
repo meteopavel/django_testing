@@ -3,13 +3,18 @@ from datetime import datetime, timedelta
 import pytest
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.test.client import Client
+from django.urls import reverse
 from django.utils import timezone
 
 from news.models import Comment, News
 
 User = get_user_model()
 
-HOME_PAGE = 'news:home'
+
+@pytest.fixture
+def unlogged_client(client):
+    return client
 
 
 @pytest.fixture
@@ -18,18 +23,28 @@ def author(django_user_model):
 
 
 @pytest.fixture
-def author_client(author, client):
+def author_client(author):
+    client = Client()
     client.force_login(author)
     return client
 
 
 @pytest.fixture
 def another_news():
-    another_news = News.objects.create(
+    return News.objects.create(
         title='Заголовок',
         text='Текст новости',
     )
-    return another_news
+
+
+@pytest.fixture
+def base_news_url(another_news):
+    return f'/news/{another_news.id}/'
+
+
+@pytest.fixture
+def base_news_detail_url(another_news):
+    return reverse('news:detail', args=(another_news.id,))
 
 
 @pytest.fixture
@@ -43,24 +58,22 @@ def news_for_home_page():
         )
         for index in range(settings.NEWS_COUNT_ON_HOME_PAGE + 1)
     )
-    return news_for_home_page
 
 
 @pytest.fixture
 def comment(author, another_news):
-    comment = Comment.objects.create(
+    return Comment.objects.create(
         news=another_news,
         author=author,
         text='Текст комментария',
     )
-    return comment
 
 
 @pytest.fixture
 def another_news_with_comments(author, another_news):
     another_news_with_comments = another_news
     now = timezone.now()
-    for index in range(2):
+    for index in range(3):
         comment = Comment.objects.create(
             news=another_news_with_comments,
             author=author,

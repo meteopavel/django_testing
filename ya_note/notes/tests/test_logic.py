@@ -46,56 +46,7 @@ class TestNoteCreation(TestCase):
         self.assertEqual(Note.objects.count(), 0)
 
 
-class TestSlugLogic(TestCase):
-
-    @classmethod
-    def setUpTestData(cls):
-        cls.author = User.objects.create(
-            username='Автор заметки'
-        )
-        cls.author_client = Client()
-        cls.author_client.force_login(cls.author)
-        cls.form_data = {
-            'title': 'Новый заголовок',
-            'text': 'Новый текст',
-            'slug': 'new-slug'
-        }
-        cls.note = Note.objects.create(
-            title='Заголовок',
-            text='Текст заметки',
-            slug='note-slug',
-            author=cls.author,
-        )
-        cls.url = reverse('notes:add')
-        cls.success_url = reverse('notes:success')
-
-    def test_not_unique_slug(self):
-        """Тестируем пункт 2."""
-        self.form_data['slug'] = self.note.slug
-        response = self.author_client.post(self.url, data=self.form_data)
-        self.assertFormError(
-            response,
-            form='form',
-            field='slug',
-            errors=(self.note.slug + WARNING)
-        )
-        self.assertEqual(Note.objects.count(), 1)
-
-    def test_empty_slug(self):
-        """Тестируем пункт 3.
-        Столкнулся с проблемой, что база не чистится после предыдущего теста.
-        Поэтому здесь сделал странно, чтобы тест не проваливался. Жду указаний.
-        """
-        self.form_data.pop('slug')
-        response = self.author_client.post(self.url, data=self.form_data)
-        self.assertRedirects(response, self.success_url)
-        self.assertEqual(Note.objects.count(), 2)
-        new_note = Note.objects.get(id=2)
-        expected_slug = slugify(self.form_data['title'])
-        self.assertEqual(new_note.slug, expected_slug)
-
-
-class TestNoteEditDelete(TestCase):
+class TestSlugLogicNoteEditDelete(TestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -120,9 +71,33 @@ class TestNoteEditDelete(TestCase):
             slug='note-slug',
             author=cls.author,
         )
+        cls.url = reverse('notes:add')
+        cls.success_url = reverse('notes:success')
         cls.edit_url = reverse('notes:edit', args=(cls.note.slug,))
         cls.delete_url = reverse('notes:delete', args=(cls.note.slug,))
-        cls.success_url = reverse('notes:success')
+
+    def test_not_unique_slug(self):
+        """Тестируем пункт 2."""
+        self.form_data['slug'] = self.note.slug
+        response = self.author_client.post(self.url, data=self.form_data)
+        self.assertFormError(
+            response,
+            form='form',
+            field='slug',
+            errors=(self.note.slug + WARNING)
+        )
+        self.assertEqual(Note.objects.count(), 1)
+
+    def test_empty_slug(self):
+        """Тестируем пункт 3."""
+        Note.objects.all().delete()
+        self.form_data.pop('slug')
+        response = self.author_client.post(self.url, data=self.form_data)
+        self.assertRedirects(response, self.success_url)
+        self.assertEqual(Note.objects.count(), 1)
+        new_note = Note.objects.first()
+        expected_slug = slugify(self.form_data['title'])
+        self.assertEqual(new_note.slug, expected_slug)
 
     def test_author_can_edit_note(self):
         """Тестируем пункт 4 часть 1"""

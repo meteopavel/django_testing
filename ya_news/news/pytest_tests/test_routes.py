@@ -5,20 +5,17 @@ from pytest_django.asserts import assertRedirects
 
 LAZY_ADMIN = pytest.lazy_fixture('admin_client')
 LAZY_AUTHOR = pytest.lazy_fixture('author_client')
+LAZY_NEWS_URL = pytest.lazy_fixture('base_news_url')
 
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
     'name',
-    ('', '/news/<int:pk>/', '/auth/login/', '/auth/logout/', '/auth/signup/')
+    ('/', '/auth/login/', '/auth/logout/', '/auth/signup/', LAZY_NEWS_URL)
 )
-def test_pages_availability_for_anonymous_user(client, name, another_news):
+def test_pages_availability_for_anonymous_user(client, name):
     """Тестируем пункты 1, 2 и 6."""
-    if name == '/news/<int:pk>/':
-        url = f'/news/{another_news.id}/'
-    else:
-        url = name
-    response = client.get(url)
+    response = client.get(name)
     assert response.status_code == HTTPStatus.OK
 
 
