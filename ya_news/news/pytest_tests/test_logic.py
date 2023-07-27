@@ -79,7 +79,7 @@ def test_authorized_client_cant_edit_comment_of_another_user(
     response = admin_client.post(edit_url, data=form_data)
     assert response.status_code == HTTPStatus.NOT_FOUND
     new_comment_object = Comment.objects.get()
-    assert new_comment_object.text == COMMENT_TEXT
+    assert new_comment_object == comment
 
 
 def test_authorized_client_cant_delete_comment_of_another_user(

@@ -11,10 +11,10 @@ HOME_PAGE = ('news:home')
 
 
 def get_object_list(client, news_for_home_page):
-    url = reverse(HOME_PAGE)
-    response = client.get(url)
-    object_list = response.context['object_list']
-    return object_list
+    response = client.get(reverse(HOME_PAGE))
+    object_list = response.context.get('object_list')
+    if object_list is not None:
+        return object_list
 
 
 @pytest.mark.django_db
